@@ -1,15 +1,27 @@
-import { Hono } from 'hono'
+import { Hono } from 'hono';
+import { supabase } from './supabase';
 
 const auth = new Hono();
 
-// console.log(Buffer.from("Hello World").toString('base64'));
-// // SGVsbG8gV29ybGQ=
-// console.log(Buffer.from("SGVsbG8gV29ybGQ=", 'base64').toString('ascii'))
-// // Hello World
-
 auth.post(async (ctx) => {
-    ctx.get('supabase').auth.signInWithPassword({ email: 'a', password: 'a' })
-})
+	// const supabase = ctx.get('supabase');
 
+	const { email, password, phone, refresh_token } = await ctx.req.json();
 
-export default auth
+	if (refresh_token) {
+		const { data, error } = await supabase.auth.refreshSession({
+			refresh_token,
+		});
+		return ctx.json({ data, error });
+	}
+
+	if (!email && !phone) throw new Error('email or phone is required');
+	const { data, error } = await supabase.auth.signInWithPassword({
+		...(email ? { email } : {}),
+		...(phone ? { phone } : {}),
+		password,
+	} as any);
+	return ctx.json({ data, error });
+});
+
+export default auth;
