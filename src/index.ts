@@ -4,11 +4,16 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { supabase, setSupabase } from './supabase'
 import api from './api';
 import auth from './auth';
+import { secureHeaders } from 'hono/secure-headers';
+import { cors } from 'hono/cors';
 
 const app = new Hono();
 
 app.use(async (ctx, next) => {
 	// if (!ctx.get('supabase')) {
+	// secureHeaders({
+	// 	crossOriginResourcePolicy: 'cross-origin'
+	// })
 	if (!supabase) {
 		const supabaseUrl = ctx.env?.['SUPABASE_API_ENDPOINT'];
 		const supabaseKey = ctx.env?.['SUPABASE_CLIENT_API_KEY'];
@@ -25,6 +30,14 @@ app.use(async (ctx, next) => {
 
 app.all('/', (ctx) => ctx.json({ error: 'not found' }, 404));
 
+app.use(
+	'/*',
+	cors({
+		origin: (origin, ctx) => {
+			return ctx.env?.['CORS_WHITELIST']?.includes(origin) ? origin : "";
+		},
+	})
+);
 
 app.post('/signUp', async (ctx) => {
 	// const supabase = ctx.get('supabase');

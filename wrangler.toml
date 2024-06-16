@@ -8,3 +8,6 @@ compatibility_date = "2024-06-05"
 API_HOST = "example.com"
 API_ACCOUNT_ID = "example_user"
 SERVICE_X_DATA = { URL = "service-x-api.dev.example", MY_ID = 123 }
+CORS_WHITELIST = [
+    "http://localhost:5173"
+]
