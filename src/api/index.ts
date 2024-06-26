@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { supabase } from '../supabase';
 import apiUser from './user';
+import account from './account';
 
 const api = new Hono();
 
@@ -27,10 +28,9 @@ api.use('/*', async (ctx, next) => {
 	// if (data.user) console.log('auth!!!!');
 
 	ctx.req.bodyCache.json = {
-		...((await ctx.req.json()) ?? {}),
+		...(ctx.req.raw?.body ? (await ctx.req?.json()) : {}),
 		user: data.user,
 	};
-	// console.log(await ctx.req.json());
 	await next();
 });
 
@@ -41,5 +41,6 @@ api.post('/', async (ctx) => {
 });
 
 api.route('/user', apiUser);
+api.route('/account', account);
 
 export default api;
