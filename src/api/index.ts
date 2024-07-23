@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { supabase } from '../supabase';
 import apiUser from './user';
 import account from './account';
+import transaction from './transaction';
 
 const api = new Hono();
 
@@ -42,5 +43,6 @@ api.post('/', async (ctx) => {
 
 api.route('/user', apiUser);
 api.route('/account', account);
+api.route('/transaction', transaction);
 
 export default api;
